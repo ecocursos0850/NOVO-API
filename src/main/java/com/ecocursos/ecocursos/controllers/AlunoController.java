@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping(value = "alunos")
+@RequestMapping(value = "aluno")
 @CrossOrigin("*")
 public class AlunoController {
     
