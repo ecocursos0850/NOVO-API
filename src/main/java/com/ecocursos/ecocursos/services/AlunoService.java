@@ -253,59 +253,57 @@ public class AlunoService {
             LocalDateTime periodoInicial,
             LocalDateTime periodoFinal
     ) {
-        String query = "select a from Aluno a ";
-        String condicao = "where";
+        StringBuilder queryBuilder = new StringBuilder("SELECT a FROM Aluno a ");
+        Map<String, Object> parameters = new HashMap<>();
+        String condicao = "WHERE";
+
         if (status != null) {
-            query += condicao + " a.status = :status";
-            condicao = " and ";
+            queryBuilder.append(condicao).append(" a.status = :status");
+            parameters.put("status", Status.toEnum(status));
+            condicao = " AND";
         }
         if (idParceiro != null) {
-            query += condicao + " a.parceiro.id = :parceiro";
-            condicao = " and ";
-        }
-        if (dataNascimento != null) {
-            query += condicao + " a.dataNascimento = :dataNascimento";
+            queryBuilder.append(condicao).append(" a.parceiro.id = :parceiro");
+            parameters.put("parceiro", idParceiro);
+            condicao = " AND";
         }
         if (sexo != null) {
-            query += condicao + " a.sexo = :sexo";
-            condicao = " and ";
+            queryBuilder.append(condicao).append(" a.sexo = :sexo");
+            parameters.put("sexo", sexo);
+            condicao = " AND";
         }
         if (estado != null) {
-            query += condicao + " a.estado = :estado";
-            condicao = " and ";
+            queryBuilder.append(condicao).append(" a.estado = :estado");
+            parameters.put("estado", estado);
+            condicao = " AND";
+        }
+        if (dataNascimento != null) {
+            queryBuilder.append(condicao).append(" a.dataNascimento = :dataNascimento");
+            parameters.put("dataNascimento", dataNascimento);
+            condicao = " AND";
         }
         if (periodoInicial != null && periodoFinal != null) {
-            query += condicao + " a.dataCadastro BETWEEN :periodoInicial AND :periodoFinal";
+            queryBuilder.append(condicao).append(" a.dataCadastro BETWEEN :periodoInicial AND :periodoFinal");
+            parameters.put("periodoInicial", periodoInicial);
+            parameters.put("periodoFinal", periodoFinal);
+            condicao = " AND";
         } else if (periodoInicial != null) {
-            query += condicao + " a.dataCadastro >= :periodoInicial";
+            queryBuilder.append(condicao).append(" a.dataCadastro >= :periodoInicial");
+            parameters.put("periodoInicial", periodoInicial);
+            condicao = " AND";
         } else if (periodoFinal != null) {
-            query += condicao + " a.dataCadastro <= :periodoFinal";
+            queryBuilder.append(condicao).append(" a.dataCadastro <= :periodoFinal");
+            parameters.put("periodoFinal", periodoFinal);
+            condicao = " AND";
         }
 
-        var q = em.createQuery(query, Aluno.class);
-
-        if (status != null) {
-            q.setParameter("status", Status.toEnum(status));
+        var q = em.createQuery(queryBuilder.toString(), Aluno.class);
+        
+        // Aplica todos os parâmetros
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            q.setParameter(entry.getKey(), entry.getValue());
         }
-        if (idParceiro != null) {
-            q.setParameter("parceiro", idParceiro);
-        }
-        if (dataNascimento != null) {
-            q.setParameter("dataNascimento", dataNascimento);
-        }
-        if (sexo != null) {
-            q.setParameter("sexo", sexo);
-        }
-        if (estado != null) {
-            q.setParameter("estado", estado);
-        }
-        if (periodoInicial != null) {
-            q.setParameter("periodoInicial", periodoInicial);
-        }
-
-        if (periodoFinal != null) {
-            q.setParameter("periodoFinal", periodoFinal);
-        }
+        
         return q.getResultList();
     }
 
